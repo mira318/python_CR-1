@@ -18,7 +18,6 @@ class Graph:
     def dfs(self, cell_id, visited):
         visited[cell_id] = True
         cur_cell = self.cells_list[cell_id]
-        cur_cell.print_cell()
         for i in range(len(cur_cell.neighbours)):
             if not visited[cur_cell.neighbours[i]]:
                 self.dfs(cur_cell.neighbours[i], visited)

@@ -13,7 +13,6 @@ class Map:
                 s = f.readline()
                 for j in range(2 * self.row_n - 1):
                     self.a[i][j] = s[j]
-                    print("read:", self.a[i][j])
                     if self.a[i][j] not in ('.', '|', '_', ' '):
                         self.special_set.add(self.a[i][j])
             self.map_dict = {}

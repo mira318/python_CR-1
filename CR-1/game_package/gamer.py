@@ -22,7 +22,7 @@ class Gamer:
         if type(self.start_cell) == TeleportCell:
             print('Gamer №{},'.format(self.number + 1), end="")
             self.teleport(self.map)
-        if type(self.start_cell) == 'ArmoryCell':
+        if type(self.start_cell) == ArmoryCell:
             print('Gamer №{},'.format(self.number + 1), end="")
             self.armory()
         self.turn_parser = argparse.ArgumentParser(description='Choose whats to do')
@@ -45,8 +45,8 @@ class Gamer:
                                     self.is_stunned, self.patrons, self.patron_cell.x, self.patron_cell.y,
                                     self.start_cell.x, self.start_cell.y, self.current_cell.x,
                                     self.current_cell.y, self.time_left))
-        # print('have map')
-        # self.map.print_lab()
+        print('have map')
+        self.map.print_lab()
 
     def came_to_new_cell(self):
         self.copy_positions.update({self.current_cell: self})
@@ -55,7 +55,6 @@ class Gamer:
         if type(self.current_cell) == TeleportCell:
             self.teleport(self.map)
         if type(self.current_cell) == ArmoryCell:
-            print('called armory')
             self.armory()
         if type(self.current_cell) == Cell or type(self.current_cell) == RubberCell:
             print('You moved successfully!')
@@ -64,7 +63,6 @@ class Gamer:
         print('Sorry, You have been stunned you will stand in this place for {} turns'.format(self.current_cell.time))
         self.is_stunned = True
         self.time_left = self.current_cell.time
-        print('time_left type in stunned = ', type(self.time_left))
 
     def teleport(self, game_map):
         print('You was teleported')
@@ -111,6 +109,7 @@ class Gamer:
                     self.patron_cell = self.map.cell_from_coord(self.patron_cell.x, self.patron_cell.y + 1)
             if self.patron_cell in self.copy_positions:
                 self.copy_positions[self.patron_cell].death()
+                still = False
 
     def turn_interface(self):
         if not self.exited:
@@ -171,9 +170,7 @@ class Gamer:
                             if args2.subcommand == 'patron':
                                 self.patrons -= 1
                                 self.patron_cell = self.current_cell
-                                print(args2.subcommand.direction)
-                self.print_gamer()
-
+                                self.shoot(args2.direction)
             else:
                 print('Sorry, gamer №{}, you skip the turn'.format(self.number + 1))
                 self.time_left -= 1

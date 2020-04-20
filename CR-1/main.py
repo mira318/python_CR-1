@@ -13,7 +13,7 @@ given_map = Map(args.field)
 if args.mode == "check":
     given_map.check()
 if args.mode == "game":
-    if given_map.check:
+    if given_map.check():
         gamer_number = 0
         cells_list = []
 
