@@ -5,6 +5,7 @@ from map_package.graph import Graph
 class Map:
 
     def __init__(self, s_file):
+        self.have_key = False
         self.special_set = set()
         with open(s_file, 'r') as f:
             self.str_n, self.row_n = map(int, f.readline().split())
@@ -120,4 +121,7 @@ class Map:
     def cell_from_coord(self, x, y):
         return self.graph.cells_list[self.id_matrix[x][y]]
 
-    # def check_wall(self, ):
+    def add_key(self, x, y):
+        self.have_key = True
+        self.key_cell = self.cell_from_coord(x, y)
+        self.key_dropped = True

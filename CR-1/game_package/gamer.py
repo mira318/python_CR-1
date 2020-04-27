@@ -11,6 +11,7 @@ class Gamer:
         self.number = gamer_num
         self.is_stunned = False
         self.patrons = 0
+        self.with_key = False
         self.current_cell = start_cell
         self.time_left = 0
         self.patron_cell = start_cell
@@ -18,14 +19,19 @@ class Gamer:
         self.copy_positions.update({self: self.current_cell})
         if type(self.current_cell) in {ArmoryCell, StunCell, TeleportCell}:
             print('Gamer №{},'.format(self.number + 1), end="")
+        else:
+            if self.map.have_key:
+                if self.map.key_cell == self.current_cell and self.map.key_dropped:
+                    print('Gamer №{},'.format(self.number + 1), end="")
         self.came_to_new_cell()
+
         self.turn_parser = argparse.ArgumentParser(description='Choose whats to do')
         turn_subparsers = self.turn_parser.add_subparsers(dest='subcommand')
         parser_up = turn_subparsers.add_parser('up')
         parser_down = turn_subparsers.add_parser('down')
         parser_left = turn_subparsers.add_parser('right')
         parser_right = turn_subparsers.add_parser('left')
-        parser_inventory = turn_subparsers.add_parser('inventory', help='check the patrons shelf')
+        parser_inventory = turn_subparsers.add_parser('inventory', help='check the patrons shelf and the key')
         parser_skip_turn = turn_subparsers.add_parser('skip', help='skip your turn')
         parser_exit = turn_subparsers.add_parser('exit', help='leave the game')
         parser_shoot = turn_subparsers.add_parser('patron',
@@ -35,15 +41,20 @@ class Gamer:
 
     def print_gamer(self):
         print('gamer: number {}, exited = {}, stunned = {}, patrons = {}, patron_cell = ({}, {}), '
-              'start_cell = ({}, {}), current_cell = ({}, {}), time left = {}'.format(self.number, self.exited,
-                                    self.is_stunned, self.patrons, self.patron_cell.x, self.patron_cell.y,
-                                    self.start_cell.x, self.start_cell.y, self.current_cell.x,
-                                    self.current_cell.y, self.time_left))
+              'start_cell = ({}, {}), current_cell = ({}, {}), time left = {}, with_key = {}'.format(self.number,
+                                    self.exited, self.is_stunned, self.patrons, self.patron_cell.x, self.patron_cell.y,
+                                    self.start_cell.x, self.start_cell.y, self.current_cell.x, self.current_cell.y,
+                                    self.time_left, self.with_key))
         #print('have map')
         #self.map.print_lab()
 
     def came_to_new_cell(self):
-        self.copy_positions.update({self:self.current_cell})
+        self.copy_positions.update({self: self.current_cell})
+        if self.map.have_key:
+            if self.current_cell == self.map.key_cell and self.map.key_dropped:
+                print('Congratulations, you came to the cell with key and took it')
+                self.map.key_dropped = False
+                self.with_key = True
         if type(self.current_cell) == StunCell:
             self.stunned()
         elif type(self.current_cell) == TeleportCell:
@@ -66,8 +77,11 @@ class Gamer:
         self.patrons = 3
 
     def death(self):
-        print('Gamer №{}, sorry but you was killed. You go to you start cell, lose all patrons '
-              'and miss the next turn'.format(self.number + 1))
+        print('Gamer №{}, sorry but you was killed. You go to you start cell, lose all patrons, lose the key on the '
+              'current cell and miss the next turn'.format(self.number + 1))
+        self.map.key_cell = self.current_cell
+        self.map.key_dropped = True
+        # self.with_key = False in init
         self.__init__(self.map, self.number, self.start_cell, self.copy_positions)
         if not self.is_stunned:
             self.is_stunned = True
@@ -128,11 +142,10 @@ class Gamer:
                     self.current_cell = self.map.cell_from_coord(self.current_cell.x, self.current_cell.y + 1)
                 self.came_to_new_cell()
                 return 0
-        if type(self.current_cell) == ExitCell:
-            if self.right_char(direction):
-                self.exited = True
-                self.win()
-                return 1
+        if type(self.current_cell) == ExitCell and self.right_char(direction) and self.with_key:
+            self.exited = True
+            self.win()
+            return 1
 
         future_cell = self.current_cell
         if direction == 'up' and self.map.check_valid_cell(self.current_cell.x - 1, self.current_cell.y):
@@ -167,6 +180,9 @@ class Gamer:
                             pass
                     if args2.subcommand == 'inventory':
                         print('You have {} patrons'.format(self.patrons))
+                        if self.map.have_key:
+                            if self.with_key:
+                                print('and you have the key!')
                         continue
                     if args2.subcommand == 'exit':
                         self.exited = True
@@ -176,7 +192,7 @@ class Gamer:
                             print("Sorry, but you don't have any patrons to shoot, try something else")
                         else:
                             self.shoot(args2.direction)
-                            return 0
+                        return 0
 
                     if args2.subcommand == 'skip':
                         return 0

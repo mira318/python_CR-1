@@ -7,6 +7,7 @@ class Cell:
         self.edges_from = []
         self.x = coord_x
         self.y = coord_y
+        self.key = False
 
     def add_to(self, id):
         self.edges_to.append(id)

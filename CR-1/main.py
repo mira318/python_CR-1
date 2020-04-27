@@ -8,6 +8,7 @@ parser.add_argument("mode", help='check or game')
 parser.add_argument("--field", help='file with the field, should be in the same directory', default='input_map_1')
 parser.add_argument("--gamers", help='amount of gamers', type=int)
 parser.add_argument("--positions", help='file with the gamers positions')
+parser.add_argument("--key", help='write this flag if you use the map with a key', action='store_true')
 args = parser.parse_args()
 given_map = Map(args.field)
 if args.mode == "check":
@@ -52,7 +53,21 @@ if args.mode == "game":
                             cells_list.append(given_map.cell_from_coord(x, y))
                         else:
                             print('Invalid line in file, move forward')
-
+        if args.key:
+            took = False
+            print('Enter the key coord')
+            while not took:
+                try:
+                    x, y = map(int, input().split())
+                    if given_map.check_valid_cell(x, y):
+                        took = True
+                    else:
+                        print('Invalid coord, please try again')
+                except ValueError:
+                    print('Invalid coord, please try again')
+                except EOFError:
+                    print('Invalid coord, please try again')
+            given_map.add_key(x, y)
         my_game = Game(given_map, gamer_number, cells_list)
         my_game.run()
     else:
