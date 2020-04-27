@@ -90,7 +90,6 @@ class Gamer:
         self.patron_cell = self.current_cell
         still = True
         while still:
-            print('Patron in cell ({}, {})'.format(self.patron_cell.x, self.patron_cell.y))
             future_patron_cell = self.patron_cell
             if direction == 'up' and self.map.check_valid_cell(self.patron_cell.x - 1, self.patron_cell.y):
                 future_patron_cell = self.map.cell_from_coord(self.patron_cell.x - 1, self.patron_cell.y)
@@ -100,7 +99,6 @@ class Gamer:
                 future_patron_cell = self.map.cell_from_coord(self.patron_cell.x, self.patron_cell.y - 1)
             if direction == 'right' and self.map.check_valid_cell(self.patron_cell.x, self.patron_cell.y + 1):
                 future_patron_cell = self.map.cell_from_coord(self.patron_cell.x, self.patron_cell.y + 1)
-            print('future_patron_cell = ({}, {})'.format(future_patron_cell.x, future_patron_cell.y))
             if future_patron_cell != self.patron_cell and future_patron_cell.id in self.patron_cell.edges_to:
                 self.patron_cell = future_patron_cell
                 for gamer, cell in self.copy_positions.items():
@@ -157,7 +155,6 @@ class Gamer:
         if not self.exited:
             if not self.is_stunned:
                 print('Gamer №{} turn'.format(self.number + 1))
-                print('Gamer position({}, {})'.format(self.current_cell.x, self.current_cell.y))
                 done_turn = False
                 while True:
                     correct = False
