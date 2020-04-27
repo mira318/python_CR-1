@@ -9,7 +9,7 @@ A R . . .
 . . _ . .
 .|. E|.|.
 . _ _ . .
-K . . . .
+K . . Z .
 . . _ . .
 .|. . . .
 . . T . .
@@ -17,7 +17,7 @@ K . . . .
 . . . S .
 . . . . .
 . . . . .
-. . . . .
+. . . . T
 E Exit(UP)
 S Stun(2)
 Q Stun(3)
@@ -26,3 +26,4 @@ R RubberRoom(RIGHT)
 L RubberRoom(LEFT)
 T Teleport(5, 3)
 K Teleport(9, 4)
+Z Teleport(2, 0)

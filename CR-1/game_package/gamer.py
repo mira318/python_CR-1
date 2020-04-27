@@ -16,15 +16,8 @@ class Gamer:
         self.patron_cell = start_cell
         self.start_cell = start_cell
         self.copy_positions.update({self.current_cell: self})
-        if type(self.start_cell) == StunCell:
-            print('Gamer №{},'.format(self.number + 1), end="")
-            self.stunned()
-        if type(self.start_cell) == TeleportCell:
-            print('Gamer №{},'.format(self.number + 1), end="")
-            self.teleport(self.map)
-        if type(self.start_cell) == ArmoryCell:
-            print('Gamer №{},'.format(self.number + 1), end="")
-            self.armory()
+        print('Gamer №{},'.format(self.number + 1), end="")
+        self.came_to_new_cell()
         self.turn_parser = argparse.ArgumentParser(description='Choose whats to do')
         turn_subparsers = self.turn_parser.add_subparsers(dest='subcommand')
         parser_up = turn_subparsers.add_parser('up')
@@ -45,19 +38,17 @@ class Gamer:
                                     self.is_stunned, self.patrons, self.patron_cell.x, self.patron_cell.y,
                                     self.start_cell.x, self.start_cell.y, self.current_cell.x,
                                     self.current_cell.y, self.time_left))
-        print('have map')
-        self.map.print_lab()
+        #print('have map')
+        #self.map.print_lab()
 
     def came_to_new_cell(self):
         self.copy_positions.update({self.current_cell: self})
         if type(self.current_cell) == StunCell:
             self.stunned()
-        if type(self.current_cell) == TeleportCell:
+        elif type(self.current_cell) == TeleportCell:
             self.teleport(self.map)
-        if type(self.current_cell) == ArmoryCell:
+        elif type(self.current_cell) == ArmoryCell:
             self.armory()
-        if type(self.current_cell) == Cell or type(self.current_cell) == RubberCell:
-            print('You moved successfully!')
 
     def stunned(self):
         print('Sorry, You have been stunned you will stand in this place for {} turns'.format(self.current_cell.time))
@@ -67,6 +58,7 @@ class Gamer:
     def teleport(self, game_map):
         print('You was teleported')
         self.current_cell = game_map.cell_from_coord(self.current_cell.to_x, self.current_cell.to_y)
+        self.came_to_new_cell()
 
     def armory(self):
         print('You are in armory room your patrons amount raised up to 3')
@@ -155,12 +147,19 @@ class Gamer:
                                 future_cell = self.map.cell_from_coord(self.current_cell.x, self.current_cell.y + 1)
 
                         if future_cell != self.current_cell:
+                            if type(self.current_cell) == RubberCell:
+                                if not self.right_char(args2.subcommand):
+                                    print('You moved successfully!')
+                                else:
+                                    print('Congratulations, you have left a rubber room')
+                                    if future_cell.id in self.current_cell.edges_to:
+                                        self.current_cell = future_cell
+                                        self.came_to_new_cell()
 
-                            if type(self.current_cell) == RubberCell and not self.right_char(args2.subcommand):
-                                print('You moved successfully!')
                             else:
                                 if future_cell.id in self.current_cell.edges_to:
                                     self.current_cell = future_cell
+                                    print('You moved successfully!')
                                     self.came_to_new_cell()
                                 else:
                                     print("Sorry, you can't go this way - there is a wall")
@@ -171,6 +170,10 @@ class Gamer:
                                 self.patrons -= 1
                                 self.patron_cell = self.current_cell
                                 self.shoot(args2.direction)
+                            else:
+                                print("Sorry, you can't go this way - there is a wall")
+                                return 0
+
             else:
                 print('Sorry, gamer №{}, you skip the turn'.format(self.number + 1))
                 self.time_left -= 1
