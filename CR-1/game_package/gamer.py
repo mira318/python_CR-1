@@ -159,7 +159,7 @@ class Gamer:
                             if type(self.current_cell) == RubberCell and not self.right_char(args2.subcommand):
                                 print('You moved successfully!')
                             else:
-                                if future_cell.id in self.current_cell.neighbours:
+                                if future_cell.id in self.current_cell.edges_to:
                                     self.current_cell = future_cell
                                     self.came_to_new_cell()
                                 else:

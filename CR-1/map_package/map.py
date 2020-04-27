@@ -50,10 +50,32 @@ class Map:
                 if i < self.str_n - 1:
                     if self.a[i * 2 + 1][j * 2] == ".":
                         self.graph.add_edge(self.id_matrix[i][j], self.id_matrix[i + 1][j])
+
         for t in self.graph.cells_list:
-            if type(t) == TeleportCell:
-                t.neighbours = []
-                t.neighbours.append(self.id_matrix[t.to_x][t.to_y])
+            if type(t) == TeleportCell or type(t) == RubberCell:
+                old_to = t.edges_to.copy()
+                for k in old_to:
+                    self.graph.delete_direct_edge(t.id, k)
+
+                if type(t) == TeleportCell and self.check_valid_cell(t.to_x, t.to_y):
+                    self.graph.add_direct_edge(t.id, self.id_matrix[t.to_x][t.to_y])
+
+                if type(t) == RubberCell:
+                    if t.direction == 'R' and self.check_valid_cell(t.x, t.y + 1) and \
+                            self.id_matrix[t.x][t.y + 1] in old_to:
+                        self.graph.add_direct_edge(t.id, self.id_matrix[t.x][t.y + 1])
+
+                    if t.direction == 'L' and self.check_valid_cell(t.x, t.y - 1) and \
+                            self.id_matrix[t.x][t.y - 1] in old_to:
+                        self.graph.add_direct_edge(t.id, self.id_matrix[t.x][t.y - 1])
+
+                    if t.direction == 'U' and self.check_valid_cell(t.x - 1, t.y) and \
+                            self.id_matrix[t.x - 1][t.y] in old_to:
+                        self.graph.add_direct_edge(t.id, self.id_matrix[t.x - 1][t.y])
+
+                    if t.direction == 'D' and self.check_valid_cell(t.x + 1, t.y) and \
+                            self.id_matrix[t.x + 1][t.y] in old_to:
+                        self.graph.add_direct_edge(t.id, self.id_matrix[t.x + 1][t.y])
 
     def check(self):
         visited = [False] * len(self.graph.cells_list)
@@ -69,6 +91,7 @@ class Map:
             print('Exit unreachable for cells', end="")
             for i in range(len(bad_cells)):
                 print(' ({}, {})'.format(bad_cells[i].x, bad_cells[i].y), end="")
+            print("")
             return False
         else:
             print('OK')

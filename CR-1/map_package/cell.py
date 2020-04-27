@@ -3,17 +3,31 @@ class Cell:
     def __init__(self, c, coord_x, coord_y):
         self.id = 0
         self.t_char = c
-        self.neighbours = []
+        self.edges_to = []
+        self.edges_from = []
         self.x = coord_x
         self.y = coord_y
 
-    def add_neighbour(self, id):
-        self.neighbours.append(id)
+    def add_to(self, id):
+        self.edges_to.append(id)
+
+    def add_from(self, id):
+        self.edges_from.append(id)
+
+    def delete_to(self, id):
+        if id in self.edges_to:
+            self.edges_to.remove(id)
+
+    def delete_from(self, id):
+        if id in self.edges_from:
+            self.edges_from.remove(id)
+
 
     def print_cell(self):
         print('c = {}, id = {}, coord_x = {}, '
               'coord_y = {}'.format(self.t_char, self.id, self.x, self.y))
-        print('neighbours:', self.neighbours)
+        print('edges_to:', self.edges_to)
+        print('edges_from:', self.edges_from)
 
 
 class ExitCell(Cell):
@@ -62,7 +76,7 @@ class TeleportCell(Cell):
         super().__init__(c, coord_x, coord_y)
 
     def print_cell(self):
-        print('It is TeleportCell to ({}, {})\n'.format(self.x, self.y))
+        print('It is TeleportCell to ({}, {})\n'.format(self.to_x, self.to_y))
         super().print_cell()
 
 

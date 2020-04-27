@@ -11,6 +11,7 @@ parser.add_argument("--positions", help='file with the gamers positions')
 args = parser.parse_args()
 given_map = Map(args.field)
 if args.mode == "check":
+    given_map.print_lab()
     given_map.check()
 if args.mode == "game":
     if given_map.check():
