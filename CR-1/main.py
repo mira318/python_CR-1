@@ -30,11 +30,16 @@ if args.mode == "game":
                 took = False
                 print('Enter the position of the gamer № {}'.format(i + 1))
                 while not took:
-                    x, y = map(int, input().split())
-                    if given_map.check_valid_cell(x, y):
-                        took = True
-                        cells_list.append(given_map.cell_from_coord(x, y))
-                    else:
+                    try:
+                        x, y = map(int, input().split())
+                        if given_map.check_valid_cell(x, y):
+                            took = True
+                            cells_list.append(given_map.cell_from_coord(x, y))
+                        else:
+                            print('Invalid coord, please try again')
+                    except ValueError:
+                        print('Invalid coord, please try again')
+                    except EOFError:
                         print('Invalid coord, please try again')
         else:
             with open(args.positions, 'w') as f:
