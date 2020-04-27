@@ -90,26 +90,27 @@ class Gamer:
         self.patron_cell = self.current_cell
         still = True
         while still:
-            moved = False
+            print('Patron in cell ({}, {})'.format(self.patron_cell.x, self.patron_cell.y))
+            future_patron_cell = self.patron_cell
             if direction == 'up' and self.map.check_valid_cell(self.patron_cell.x - 1, self.patron_cell.y):
-                self.patron_cell = self.map.cell_from_coord(self.patron_cell.x - 1, self.patron_cell.y)
-                moved = True
+                future_patron_cell = self.map.cell_from_coord(self.patron_cell.x - 1, self.patron_cell.y)
             if direction == 'down' and self.map.check_valid_cell(self.patron_cell.x + 1, self.patron_cell.y):
-                self.patron_cell = self.map.cell_from_coord(self.patron_cell.x + 1, self.patron_cell.y)
-                moved = True
+                future_patron_cell = self.map.cell_from_coord(self.patron_cell.x + 1, self.patron_cell.y)
             if direction == 'left' and self.map.check_valid_cell(self.patron_cell.x, self.patron_cell.y - 1):
-                self.patron_cell = self.map.cell_from_coord(self.patron_cell.x, self.patron_cell.y - 1)
-                moved = True
+                future_patron_cell = self.map.cell_from_coord(self.patron_cell.x, self.patron_cell.y - 1)
             if direction == 'right' and self.map.check_valid_cell(self.patron_cell.x, self.patron_cell.y + 1):
-                self.patron_cell = self.map.cell_from_coord(self.patron_cell.x, self.patron_cell.y + 1)
-                moved = True
-            if moved is False:
-                still = False
-            else:
+                future_patron_cell = self.map.cell_from_coord(self.patron_cell.x, self.patron_cell.y + 1)
+            print('future_patron_cell = ({}, {})'.format(future_patron_cell.x, future_patron_cell.y))
+            if future_patron_cell != self.patron_cell and future_patron_cell.id in self.patron_cell.edges_to:
+                self.patron_cell = future_patron_cell
                 for gamer, cell in self.copy_positions.items():
-                    if cell.x == self.patron_cell.x and cell.y == self.patron_cell.y and still:
+                    if cell == self.patron_cell and still:
                         still = False
                         gamer.death()
+                if type(self.patron_cell) == TeleportCell or type(self.patron_cell) == RubberCell:
+                    still = False
+            else:
+                still = False
 
     def direction_command(self, direction):
         if type(self.current_cell) == RubberCell:
@@ -136,18 +137,14 @@ class Gamer:
                 return 1
 
         future_cell = self.current_cell
-        if direction == 'up':
-            if self.map.check_valid_cell(self.current_cell.x - 1, self.current_cell.y):
-                future_cell = self.map.cell_from_coord(self.current_cell.x - 1, self.current_cell.y)
-        if direction == 'down':
-            if self.map.check_valid_cell(self.current_cell.x + 1, self.current_cell.y):
-                future_cell = self.map.cell_from_coord(self.current_cell.x + 1, self.current_cell.y)
-        if direction == 'left':
-            if self.map.check_valid_cell(self.current_cell.x, self.current_cell.y - 1):
-                future_cell = self.map.cell_from_coord(self.current_cell.x, self.current_cell.y - 1)
-        if direction == 'right':
-            if self.map.check_valid_cell(self.current_cell.x, self.current_cell.y + 1):
-                future_cell = self.map.cell_from_coord(self.current_cell.x, self.current_cell.y + 1)
+        if direction == 'up' and self.map.check_valid_cell(self.current_cell.x - 1, self.current_cell.y):
+            future_cell = self.map.cell_from_coord(self.current_cell.x - 1, self.current_cell.y)
+        if direction == 'down' and self.map.check_valid_cell(self.current_cell.x + 1, self.current_cell.y):
+            future_cell = self.map.cell_from_coord(self.current_cell.x + 1, self.current_cell.y)
+        if direction == 'left' and self.map.check_valid_cell(self.current_cell.x, self.current_cell.y - 1):
+            future_cell = self.map.cell_from_coord(self.current_cell.x, self.current_cell.y - 1)
+        if direction == 'right' and self.map.check_valid_cell(self.current_cell.x, self.current_cell.y + 1):
+            future_cell = self.map.cell_from_coord(self.current_cell.x, self.current_cell.y + 1)
         if future_cell != self.current_cell and future_cell.id in self.current_cell.edges_to:
             self.current_cell = future_cell
             print('You moved successfully!')
@@ -160,8 +157,9 @@ class Gamer:
         if not self.exited:
             if not self.is_stunned:
                 print('Gamer №{} turn'.format(self.number + 1))
+                print('Gamer position({}, {})'.format(self.current_cell.x, self.current_cell.y))
                 done_turn = False
-                while not done_turn:
+                while True:
                     correct = False
                     while not correct:
                         command = input().split()
@@ -176,12 +174,14 @@ class Gamer:
                     if args2.subcommand == 'exit':
                         self.exited = True
                         return 2
-                    done_turn = True
+                    if args2.subcommand == 'patron':
+                        if self.patrons <= 0:
+                            print("Sorry, but you don't have any patrons to shoot, try something else")
+                        else:
+                            self.shoot(args2.direction)
+                            return 0
 
                     if args2.subcommand == 'skip':
-                        return 0
-                    if args2.subcommand == 'patron':
-                        self.shoot(args2.direction)
                         return 0
                     if args2.subcommand in {'up', 'down', 'right', 'left'}:
                         return self.direction_command(args2.subcommand)

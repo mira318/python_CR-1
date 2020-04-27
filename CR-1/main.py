@@ -14,6 +14,7 @@ if args.mode == "check":
     given_map.check()
 if args.mode == "game":
     if given_map.check():
+        given_map.print_lab()
         gamer_number = 0
         cells_list = []
 

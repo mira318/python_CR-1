@@ -119,3 +119,5 @@ class Map:
 
     def cell_from_coord(self, x, y):
         return self.graph.cells_list[self.id_matrix[x][y]]
+
+    # def check_wall(self, ):
