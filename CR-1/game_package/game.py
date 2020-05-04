@@ -39,5 +39,3 @@ class Game:
                         print('Game will be finished, because all gamers left')
                 else:
                     self.current_gamer = (self.current_gamer + 1) % len(self.gamer_list)
-
-

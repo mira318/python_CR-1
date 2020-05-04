@@ -7,6 +7,22 @@ class Map:
     def __init__(self, s_file):
         self.have_key = False
         self.special_set = set()
+        self.map_dict = {}
+        self.graph = Graph()
+        self.file_reading(s_file)
+        self.id_matrix = [[0] * self.row_n for i in range(self.str_n)]
+        self.add_cells_and_edges()
+        for t in self.graph.cells_list:
+            if type(t) == TeleportCell:
+                to = self.cell_from_coord(t.to_x, t.to_y)
+                to.from_teleport = True
+        for t in self.graph.cells_list:
+            if type(t) == TeleportCell:
+                self.correct_teleport_cell(t)
+            if type(t) == RubberCell:
+                self.correct_rubber_cell(t)
+
+    def file_reading(self, s_file):
         with open(s_file, 'r') as f:
             self.str_n, self.row_n = map(int, f.readline().split())
             self.a = [['.'] * (2 * self.row_n - 1) for i in range(2 * self.str_n - 1)]
@@ -16,13 +32,11 @@ class Map:
                     self.a[i][j] = s[j]
                     if self.a[i][j] not in ('.', '|', '_', ' '):
                         self.special_set.add(self.a[i][j])
-            self.map_dict = {}
             for i in range(len(self.special_set)):
                 s = f.readline()
                 self.map_dict.update({s[0]: s[2:len(s) - 1]})
 
-        self.id_matrix = [[0] * self.row_n for i in range(self.str_n)]
-        self.graph = Graph()
+    def add_cells_and_edges(self):
         for i in range(2 * self.str_n - 1):
             for j in range(2 * self.row_n - 1):
                 if i % 2 == 0 and j % 2 == 0:
@@ -42,7 +56,6 @@ class Map:
                             t = TeleportCell(self.a[i][j], i // 2, j // 2, int(current_s[9]), int(current_s[12]))
                     self.graph.add_cell(t)
                     self.id_matrix[i // 2][j // 2] = t.id
-
         for i in range(self.str_n):
             for j in range(self.row_n):
                 if j < self.row_n - 1:
@@ -52,31 +65,27 @@ class Map:
                     if self.a[i * 2 + 1][j * 2] == ".":
                         self.graph.add_edge(self.id_matrix[i][j], self.id_matrix[i + 1][j])
 
-        for t in self.graph.cells_list:
-            if type(t) == TeleportCell or type(t) == RubberCell:
-                old_to = t.edges_to.copy()
-                for k in old_to:
-                    self.graph.delete_direct_edge(t.id, k)
+    def correct_rubber_cell(self, t):
+        old_to = t.edges_to.copy()
+        for k in old_to:
+            self.graph.delete_direct_edge(t.id, k)
+            if t.direction == 'R' and self.check_valid_cell(t.x, t.y + 1) and self.id_matrix[t.x][t.y + 1] in old_to:
+                self.graph.add_direct_edge(t.id, self.id_matrix[t.x][t.y + 1])
+            if t.direction == 'L' and self.check_valid_cell(t.x, t.y - 1) and self.id_matrix[t.x][t.y - 1] in old_to:
+                self.graph.add_direct_edge(t.id, self.id_matrix[t.x][t.y - 1])
+            if t.direction == 'U' and self.check_valid_cell(t.x - 1, t.y) and self.id_matrix[t.x - 1][t.y] in old_to:
+                self.graph.add_direct_edge(t.id, self.id_matrix[t.x - 1][t.y])
+            if t.direction == 'D' and self.check_valid_cell(t.x + 1, t.y) and self.id_matrix[t.x + 1][t.y] in old_to:
+                self.graph.add_direct_edge(t.id, self.id_matrix[t.x + 1][t.y])
 
-                if type(t) == TeleportCell and self.check_valid_cell(t.to_x, t.to_y):
-                    self.graph.add_direct_edge(t.id, self.id_matrix[t.to_x][t.to_y])
-
-                if type(t) == RubberCell:
-                    if t.direction == 'R' and self.check_valid_cell(t.x, t.y + 1) and \
-                            self.id_matrix[t.x][t.y + 1] in old_to:
-                        self.graph.add_direct_edge(t.id, self.id_matrix[t.x][t.y + 1])
-
-                    if t.direction == 'L' and self.check_valid_cell(t.x, t.y - 1) and \
-                            self.id_matrix[t.x][t.y - 1] in old_to:
-                        self.graph.add_direct_edge(t.id, self.id_matrix[t.x][t.y - 1])
-
-                    if t.direction == 'U' and self.check_valid_cell(t.x - 1, t.y) and \
-                            self.id_matrix[t.x - 1][t.y] in old_to:
-                        self.graph.add_direct_edge(t.id, self.id_matrix[t.x - 1][t.y])
-
-                    if t.direction == 'D' and self.check_valid_cell(t.x + 1, t.y) and \
-                            self.id_matrix[t.x + 1][t.y] in old_to:
-                        self.graph.add_direct_edge(t.id, self.id_matrix[t.x + 1][t.y])
+    def correct_teleport_cell(self, t):
+        old_to = t.edges_to.copy()
+        t.old_neighbours = t.edges_to.copy()
+        if not t.from_teleport:
+            for k in old_to:
+                self.graph.delete_direct_edge(t.id, k)
+        if self.check_valid_cell(t.to_x, t.to_y):
+            self.graph.add_direct_edge(t.id, self.id_matrix[t.to_x][t.to_y])
 
     def check(self):
         visited = [False] * len(self.graph.cells_list)

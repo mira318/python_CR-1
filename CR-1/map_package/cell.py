@@ -8,6 +8,7 @@ class Cell:
         self.x = coord_x
         self.y = coord_y
         self.key = False
+        self.from_teleport = False
 
     def add_to(self, id):
         self.edges_to.append(id)
@@ -23,10 +24,9 @@ class Cell:
         if id in self.edges_from:
             self.edges_from.remove(id)
 
-
     def print_cell(self):
         print('c = {}, id = {}, coord_x = {}, '
-              'coord_y = {}'.format(self.t_char, self.id, self.x, self.y))
+              'coord_y = {}, from_teleport = {}'.format(self.t_char, self.id, self.x, self.y, self.from_teleport))
         print('edges_to:', self.edges_to)
         print('edges_from:', self.edges_from)
 
@@ -74,10 +74,9 @@ class TeleportCell(Cell):
     def __init__(self, c, coord_x, coord_y, x, y):
         self.to_x = x
         self.to_y = y
+        self.old_neighbours = []
         super().__init__(c, coord_x, coord_y)
 
     def print_cell(self):
         print('It is TeleportCell to ({}, {})\n'.format(self.to_x, self.to_y))
         super().print_cell()
-
-
