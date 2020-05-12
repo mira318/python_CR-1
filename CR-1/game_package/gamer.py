@@ -106,9 +106,8 @@ class Gamer:
                 if cell == self.patron_cell and still and gamer.number is not self.number:
                     still = False
                     death_list.append(gamer)
-            if len(death_list) > 0:
-                kill = random.randrange(len(death_list))
-                death_list[kill].death()
+            if death_list:
+                random.choice(death_list).death()
             if type(self.patron_cell) == TeleportCell or type(self.patron_cell) == RubberCell:
                 still = False
             future_patron_cell = self.patron_cell
