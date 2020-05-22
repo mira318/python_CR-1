@@ -4,8 +4,8 @@
 S . L
 . . .
 A R .
-E Exit(UP)
+E Exit('UP')
 S Stun(2)
 A Armory()
-R RubberRoom(RIGHT)
-L RubberRoom(LEFT)
+R RubberRoom('RIGHT')
+L RubberRoom('LEFT')

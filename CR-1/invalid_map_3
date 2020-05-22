@@ -18,11 +18,11 @@ K . . . .
 . . . S .
 . . . . _
 . . . .|.
-E Exit(UP)
+E Exit('UP')
 S Stun(2)
 Q Stun(3)
 A Armory()
-R RubberRoom(RIGHT)
-L RubberRoom(LEFT)
+R RubberRoom('RIGHT')
+L RubberRoom('LEFT')
 T Teleport(5, 3)
 K Teleport(9, 4)
