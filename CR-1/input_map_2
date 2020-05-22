@@ -1,0 +1,29 @@
+10 5
+.|. . T .
+. . _ . .
+S . L .|A
+. . . . .
+A R . . .
+. _ _ _ .
+.|. Q . .
+. . _ . .
+.|. E|.|.
+. _ _ . .
+K . . Z .
+. . _ . .
+.|. . . .
+. . . . .
+. . T . .
+. . . . .
+. . S . .
+. . . . .
+. . . . T
+E Exit('UP')
+S Stun(2)
+Q Stun(3)
+A Armory()
+R RubberRoom('RIGHT')
+L RubberRoom('LEFT')
+T Teleport(5, 3)
+K Teleport(9, 4)
+Z Teleport(2, 0)
